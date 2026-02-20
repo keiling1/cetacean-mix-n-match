@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚對對碰 - 完美比例版</title>
+    <title>鯨豚對對碰 - 完美對齊修復版</title>
     <style>
         :root {
             --primary: #0056b3;
             --bg: #eef2f7;
+            --pool-light: #dcf0ff;
         }
 
         body {
@@ -15,31 +16,21 @@
             background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh;
         }
 
-        h1 { margin: 10px 0; }
+        h1 { margin: 10px 0; color: var(--primary); }
 
-        /* 主容器：強制左右兩欄高度同步 */
+        /* 主容器：確保左右兩大欄絕對等高 */
         .game-container {
-            display: flex; 
-            gap: 25px; 
-            width: 95%; 
+            display: grid;
+            grid-template-columns: 1.2fr 1fr; /* 左寬右窄 */
+            gap: 25px;
+            width: 95%;
             max-width: 1400px;
-            align-items: stretch; /* 確保左右等高 */
+            align-items: stretch; /* 關鍵：強制等高 */
         }
 
-        /* 左側大欄：比例稍微加寬，確保能放下 3 張 160px 的卡片 */
-        .source-container {
-            flex: 1.2; 
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* 右側大欄：比例稍微縮小，確保 4 張卡片能橫向排列 */
-        .zone-area {
-            flex: 1; 
+        .source-container, .zone-area {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -52,22 +43,23 @@
             border-radius: 12px;
             padding: 20px;
             display: flex;
-            flex-wrap: wrap; /* 自動換行 */
+            flex-wrap: wrap;
             gap: 15px;
             align-content: flex-start;
             flex: 1; /* 平分高度 */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             box-sizing: border-box;
+            background-color: white; /* 確保背景是白色 */
         }
 
+        #pool-images, #pool-texts { background-color: var(--pool-light); border-style: dashed; }
         .zone { border: 3px solid var(--primary); }
 
         .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 15px 0; color: #444; }
-        .zone h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
-        /* 卡片樣式：縮小寬度以符合每行張數需求 */
+        /* 卡片樣式 */
         .card {
-            background: white;
+            background: white !important; /* 強制白色底色 */
             border: 2px solid var(--primary);
             border-radius: 8px;
             cursor: grab;
@@ -75,49 +67,58 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            transition: transform 0.1s;
         }
 
-        /* 調整寬度：左側大欄約 600px，3張 160px 加間距剛好 */
-        .image-card { width: 160px; }
+        /* 左側圖片區：一行3張 (160px) */
+        #pool-images .image-card, #pool-texts .text-card { width: 160px; }
+        
+        /* 右側籃子區：一行4張 (縮小為 130px) */
+        .zone .card { width: 130px; }
+
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
-        /* 文字卡片寬度保持與圖片一致 */
         .text-card {
-            width: 160px;
             height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
             font-weight: bold;
-            background: #E8F9FF;
         }
-
-        /* 右側籃子（Zone）內的卡片寬度調整：為了讓一行能放4張，進籃後的寬度稍微縮小 */
-        .zone .card {
-            width: 130px; /* 籃子內卡片縮小，確保能排 4 張 */
-        }
-        .zone .text-card { width: 130px; height: 45px; font-size: 0.9rem; }
 
         /* 合併後的狀態 */
         .merged .text-card {
-            width: 100%; height: 50px; border: none; border-top: 2px solid var(--primary); border-radius: 0; background: #fff;
+            width: 100%; height: 45px; border: none; border-top: 1px solid #ddd; border-radius: 0; font-size: 0.9rem;
         }
 
-        .drag-over { background: #d1eaff !important; border-style: dashed !important; }
+        /* 拖拽效果修復：移除藍色，僅保留虛線框 */
+        .drag-over { 
+            background-color: rgba(255, 255, 255, 0.7) !important; 
+            border: 2px dashed var(--primary) !important; 
+        }
 
-        .reset-btn { margin: 20px 0; padding: 12px 30px; cursor: pointer; border-radius: 25px; border: 1px solid #aaa; background: white; font-weight: bold; }
+        .reset-btn {
+            margin-top: 30px;
+            padding: 12px 40px;
+            cursor: pointer;
+            border-radius: 25px;
+            background: white;
+            font-weight: bold;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            transition: 0.3s;
+        }
+        .reset-btn:hover { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
-    <h1>🐋 鯨豚對對碰</h1>
+    <h1>🐬 鯨豚對對碰</h1>
     <p>步驟：1. 將名字拉到圖片上合併 | 2. 將完成的圖鑑拉進正確的籃子</p>
 
     <div class="game-container">
         <div class="source-container">
-            <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+            <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
                 <h3>🖼️ 鯨豚圖片區 (一行3張)</h3>
                 <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
                 <div class="card image-card" draggable="true" id="img_B"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk"></div>
@@ -129,7 +130,7 @@
                 <div class="card image-card" draggable="true" id="img_H"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-minke-whale.png?itok=BF2mFkIv"></div>
             </div>
 
-            <div id="pool-texts" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+            <div id="pool-texts" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
                 <h3>🏷️ 物種名稱區</h3>
                 <div class="card text-card" draggable="true" id="txt_A">一角鯨</div>
                 <div class="card text-card" draggable="true" id="txt_B">熱帶斑海豚</div>
@@ -170,11 +171,27 @@
         document.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('card')) {
                 e.dataTransfer.setData("text", e.target.id);
+                // 增加透明度回饋
+                setTimeout(() => e.target.style.opacity = "0.5", 0);
             }
         });
 
-        function handleDragOver(e) { e.preventDefault(); let t = getValidTarget(e.target); if (t) t.classList.add('drag-over'); }
-        function handleDragLeave(e) { let t = getValidTarget(e.target); if (t) t.classList.remove('drag-over'); }
+        document.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('card')) {
+                e.target.style.opacity = "1";
+            }
+        });
+
+        function handleDragOver(e) { 
+            e.preventDefault(); 
+            let t = getValidTarget(e.target); 
+            if (t) t.classList.add('drag-over'); 
+        }
+
+        function handleDragLeave(e) { 
+            let t = getValidTarget(e.target); 
+            if (t) t.classList.remove('drag-over'); 
+        }
 
         function handleDrop(e) {
             e.preventDefault();
@@ -182,9 +199,11 @@
             const draggedEl = document.getElementById(draggedId);
             let dropTarget = getValidTarget(e.target);
 
-            if (!dropTarget || !draggedEl) return;
-            dropTarget.classList.remove('drag-over');
+            if (dropTarget) dropTarget.classList.remove('drag-over');
 
+            if (!dropTarget || !draggedEl) return;
+
+            // 配對邏輯
             if (draggedEl.classList.contains('text-card') && dropTarget.classList.contains('image-card')) {
                 if (dropTarget.querySelector('.text-card')) return;
                 dropTarget.appendChild(draggedEl);
