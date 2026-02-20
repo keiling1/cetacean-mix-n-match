@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚配對遊戲</title>
+    <title>鯨豚對對碰 - 配對分類挑戰</title>
     <style>
         :root {
             --primary: #0056b3;
             --bg: #eef2f7;
+            --img-pool: #fffafa;
+            --txt-pool: #f0f8ff;
         }
 
         body {
@@ -18,22 +20,33 @@
         }
 
         .game-container {
-            display: flex; gap: 25px; width: 100%; max-width: 1200px;
+            display: flex; gap: 20px; width: 100%; max-width: 1300px;
         }
 
-        #pool {
-            flex: 0 0 380px;
-            min-height: 700px;
+        /* 左側：分區存放 */
+        .source-container {
+            flex: 0 0 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pool {
             background: #fff;
             border: 2px solid #ccc;
             border-radius: 12px;
             padding: 15px;
             display: flex;
-            flex-wrap: wrap; 
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 380px;
             align-content: flex-start;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
+        .pool h3 { width: 100%; text-align: center; margin: 0 0 10px 0; font-size: 1rem; color: #444; }
+
+        /* 卡片樣式 */
         .card {
             background: white;
             border: 2px solid var(--primary);
@@ -44,8 +57,8 @@
             flex-direction: column;
         }
 
-        /* 圖片卡片：固定寬度 */
-        .image-card { width: 160px; height: auto; min-height: 100px; }
+        /* 圖片卡片：固定寬度，高度自適應 */
+        .image-card { width: 160px; height: auto; }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
         /* 文字卡片：固定大小 */
@@ -55,57 +68,59 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            text-align: center;
             font-weight: bold;
-            background: #e3f2fd;
+            background: #fff;
         }
 
         /* 合併後的狀態 */
         .merged .text-card {
-            width: 100%;
-            height: 50px;
-            border: none;
-            border-top: 2px solid var(--primary);
-            border-radius: 0;
-            background: #fff;
+            width: 100%; height: 50px; border: none; border-top: 2px solid var(--primary); border-radius: 0;
         }
 
-        .zone-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        /* 右側：分類籃 */
+        .zone-area { flex: 1; display: flex; flex-direction: column; gap: 15px; }
         .zone {
             background: white; border: 3px solid var(--primary);
-            border-radius: 15px; padding: 20px; min-height: 280px;
-            display: flex; flex-wrap: wrap; gap: 15px; align-content: flex-start;
+            border-radius: 15px; padding: 20px; min-height: 350px;
+            display: flex; flex-wrap: wrap; gap: 12px; align-content: flex-start;
         }
         .zone h3 { width: 100%; text-align: center; color: var(--primary); border-bottom: 1px solid #eee; margin: 0 0 10px 0; }
         .drag-over { background: #d1eaff !important; border-style: dashed !important; }
-        .reset-btn { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
+
+        .reset-btn { margin-top: 20px; padding: 10px 20px; cursor: pointer; border-radius: 20px; border: 1px solid #aaa; }
     </style>
 </head>
 <body>
 
     <h1>🐋 鯨豚對對碰</h1>
-    <p>將「名字」拖到「圖片」合併，再放入正確的籃子</p>
+    <p>1. 將名字與圖片配對合併 | 2. 依據演化分支將整組放入籃中</p>
 
     <div class="game-container">
-        <div id="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-            <h3>待配對區</h3>
-            
-            <div class="card image-card" draggable="true" id="img1"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2021-04/640x427-Dolphin_Indus_River_150_NB_W.jpg?itok=49rQuj_E" alt="1"></div>
-            <div class="card image-card" draggable="true" id="img2"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk" alt="2"></div>
-            <div class="card image-card" draggable="true" id="img3"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2023-03/640x427-Whale-Bowhead-markedDW.png?itok=qnTC9guS" alt="3"></div>
-            <div class="card image-card" draggable="true" id="img4"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-gray-whale.png?itok=fvtmGaN4" alt="4"></div>
-            <div class="card image-card" draggable="true" id="img5"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0" alt="5"></div>
-            <div class="card image-card" draggable="true" id="img6"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-rissos-dolphin.png?itok=aFmnZh2F" alt="6"></div>
-            <div class="card image-card" draggable="true" id="img7"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-blainvilles-beaked-whale.png?itok=GeEV9fN3" alt="7"></div>
-            <div class="card image-card" draggable="true" id="img8"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-minke-whale.png?itok=BF2mFkIv" alt="8"></div>
+        <div class="source-container">
+            <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                <h3>🖼️ 鯨豚圖片區</h3>
+                <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
+                <div class="card image-card" draggable="true" id="img_B"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk"></div>
+                <div class="card image-card" draggable="true" id="img_C"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-rissos-dolphin.png?itok=aFmnZh2F"></div>
+                <div class="card image-card" draggable="true" id="img_D"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2021-04/640x427-Dolphin_Indus_River_150_NB_W.jpg?itok=49rQuj_E"></div>
+                <div class="card image-card" draggable="true" id="img_E"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-blainvilles-beaked-whale.png?itok=GeEV9fN3"></div>
+                <div class="card image-card" draggable="true" id="img_F"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-minke-whale.png?itok=BF2mFkIv"></div>
+                <div class="card image-card" draggable="true" id="img_G"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-gray-whale.png?itok=fvtmGaN4"></div>
+                <div class="card image-card" draggable="true" id="img_H"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2023-03/640x427-Whale-Bowhead-markedDW.png?itok=qnTC9guS"></div>
+            </div>
 
-            <div class="card text-card" draggable="true" id="txt1">一角鯨</div>
-            <div class="card text-card" draggable="true" id="txt2">小鬚鯨</div>
-            <div class="card text-card" draggable="true" id="txt3">灰鯨</div>
-            <div class="card text-card" draggable="true" id="txt4">熱帶斑海豚</div>
-            <div class="card text-card" draggable="true" id="txt5">瑞氏海豚</div>
-            <div class="card text-card" draggable="true" id="txt6">弓頭鯨</div>
-            <div class="card text-card" draggable="true" id="txt7">恆河豚</div>
-            <div class="card text-card" draggable="true" id="txt8">柏氏中喙鯨</div>
+            <div id="pool-texts" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                <h3>🏷️ 物種名稱區</h3>
+                <div class="card text-card" draggable="true" id="txt_A">一角鯨</div>
+                <div class="card text-card" draggable="true" id="txt_B">熱帶斑海豚</div>
+                <div class="card text-card" draggable="true" id="txt_C">瑞氏海豚</div>
+                <div class="card text-card" draggable="true" id="txt_D">恆河豚</div>
+                <div class="card text-card" draggable="true" id="txt_E">柏氏中喙鯨</div>
+                <div class="card text-card" draggable="true" id="txt_F">小鬚鯨</div>
+                <div class="card text-card" draggable="true" id="txt_G">灰鯨</div>
+                <div class="card text-card" draggable="true" id="txt_H">弓頭鯨</div>
+            </div>
         </div>
 
         <div class="zone-area">
@@ -118,16 +133,20 @@
         </div>
     </div>
 
-    <button class="reset-btn" onclick="location.reload()">重新開始</button>
+    <button class="reset-btn" onclick="location.reload()">重新開始 (隨機打亂)</button>
 
     <script>
-        // 洗牌功能
         window.onload = function() {
-            const pool = document.getElementById('pool');
+            shufflePool('pool-images');
+            shufflePool('pool-texts');
+        };
+
+        function shufflePool(id) {
+            const pool = document.getElementById(id);
             const cards = Array.from(pool.querySelectorAll('.card'));
             cards.sort(() => Math.random() - 0.5);
             cards.forEach(card => pool.appendChild(card));
-        };
+        }
 
         document.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('card')) {
@@ -159,7 +178,7 @@
 
         function getValidTarget(el) {
             while (el) {
-                if (el.classList.contains('zone') || el.classList.contains('image-card') || el.id === 'pool') return el;
+                if (el.classList.contains('zone') || el.classList.contains('image-card') || el.classList.contains('pool')) return el;
                 el = el.parentElement;
             }
             return null;
