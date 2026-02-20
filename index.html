@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚對對碰</title>
+    <title>鯨豚對對碰 - 完美比例版</title>
     <style>
         :root {
             --primary: #0056b3;
@@ -15,20 +15,30 @@
             background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
 
         h1 { margin: 10px 0; }
 
-        /* 主容器：確保左右兩大欄絕對等高 */
+        /* 主容器：強制左右兩欄高度同步 */
         .game-container {
             display: flex; 
             gap: 25px; 
-            width: 100%; 
-            max-width: 1300px;
-            align-items: stretch; /* 關鍵：強制左右同步高度 */
+            width: 95%; 
+            max-width: 1400px;
+            align-items: stretch; /* 確保左右等高 */
         }
 
-        .source-container, .zone-area {
+        /* 左側大欄：比例稍微加寬，確保能放下 3 張 160px 的卡片 */
+        .source-container {
+            flex: 1.2; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 右側大欄：比例稍微縮小，確保 4 張卡片能橫向排列 */
+        .zone-area {
             flex: 1; 
             display: flex;
             flex-direction: column;
@@ -42,7 +52,7 @@
             border-radius: 12px;
             padding: 20px;
             display: flex;
-            flex-wrap: wrap; /* 讓圖片自動換行，不重疊 */
+            flex-wrap: wrap; /* 自動換行 */
             gap: 15px;
             align-content: flex-start;
             flex: 1; /* 平分高度 */
@@ -55,7 +65,7 @@
         .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 15px 0; color: #444; }
         .zone h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
-        /* 卡片樣式 */
+        /* 卡片樣式：縮小寬度以符合每行張數需求 */
         .card {
             background: white;
             border: 2px solid var(--primary);
@@ -64,14 +74,17 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0; /* 防止被擠壓 */
+            flex-shrink: 0;
+            transition: transform 0.1s;
         }
 
-        .image-card { width: 140px; background: #FFFFFF;}
+        /* 調整寬度：左側大欄約 600px，3張 160px 加間距剛好 */
+        .image-card { width: 160px; }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
+        /* 文字卡片寬度保持與圖片一致 */
         .text-card {
-            width: 140px;
+            width: 160px;
             height: 60px;
             display: flex;
             justify-content: center;
@@ -80,6 +93,12 @@
             font-weight: bold;
             background: #E8F9FF;
         }
+
+        /* 右側籃子（Zone）內的卡片寬度調整：為了讓一行能放4張，進籃後的寬度稍微縮小 */
+        .zone .card {
+            width: 130px; /* 籃子內卡片縮小，確保能排 4 張 */
+        }
+        .zone .text-card { width: 130px; height: 45px; font-size: 0.9rem; }
 
         /* 合併後的狀態 */
         .merged .text-card {
@@ -93,14 +112,14 @@
 </head>
 <body>
 
-    <h1>🐬 鯨豚對對碰</h1>
-    <p>將名字拖到圖片合併，再放入正確的籃子中</p>
+    <h1>🐋 鯨豚對對碰</h1>
+    <p>步驟：1. 將名字拉到圖片上合併 | 2. 將完成的圖鑑拉進正確的籃子</p>
 
     <div class="game-container">
         <div class="source-container">
             <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-                <h3>🖼️ 鯨豚圖片區</h3>
-                <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2021-04/640x427-Dolphin_Indus_River_150_NB_W.jpg?itok=49rQuj_E"></div>
+                <h3>🖼️ 鯨豚圖片區 (一行3張)</h3>
+                <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
                 <div class="card image-card" draggable="true" id="img_B"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk"></div>
                 <div class="card image-card" draggable="true" id="img_C"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2023-03/640x427-Whale-Bowhead-markedDW.png?itok=qnTC9guS"></div>
                 <div class="card image-card" draggable="true" id="img_D"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-gray-whale.png?itok=fvtmGaN4"></div>
@@ -112,7 +131,7 @@
 
             <div id="pool-texts" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
                 <h3>🏷️ 物種名稱區</h3>
-                <div class="card text-card" draggable="true" id="txt_A">恆河豚</div>
+                <div class="card text-card" draggable="true" id="txt_A">一角鯨</div>
                 <div class="card text-card" draggable="true" id="txt_B">熱帶斑海豚</div>
                 <div class="card text-card" draggable="true" id="txt_C">弓頭鯨</div>
                 <div class="card text-card" draggable="true" id="txt_D">灰鯨</div>
@@ -125,10 +144,10 @@
 
         <div class="zone-area">
             <div class="zone" id="z_toothed" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>齒鯨 Toothed Whale</h3>
+                <h3>🐳 齒鯨 Toothed Whale (一行4張)</h3>
             </div>
             <div class="zone" id="z_baleen" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>鬚鯨 Baleen Whale</h3>
+                <h3>🐢 鬚鯨 Baleen Whale (一行4張)</h3>
             </div>
         </div>
     </div>
