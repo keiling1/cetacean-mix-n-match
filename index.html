@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚對對碰 - 配對分類挑戰</title>
+    <title>鯨豚對對碰 - 等高版</title>
     <style>
         :root {
             --primary: #0056b3;
@@ -17,21 +17,34 @@
             background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
+            height: 100vh; /* 讓身體撐滿螢幕高度 */
+            box-sizing: border-box;
         }
 
+        h1 { margin: 10px 0; }
+        p { margin-bottom: 15px; }
+
+        /* 主容器：確保撐滿剩餘空間 */
         .game-container {
-            display: flex; gap: 20px; width: 100%; max-width: 1300px;
+            display: flex; 
+            gap: 20px; 
+            width: 100%; 
+            max-width: 1300px;
+            flex: 1; /* 填滿 body 剩餘高度 */
+            min-height: 0; /* 防止內容撐開高度 */
         }
 
-        /* 左側：分區存放 */
-        .source-container {
-            flex: 0 0 600px;
+        /* 左側與右側區域都要維持 100% 高度 */
+        .source-container, .zone-area {
+            flex: 1; 
             display: flex;
             flex-direction: column;
             gap: 15px;
+            height: 100%; /* 關鍵：強制等高 */
         }
 
-        .pool {
+        /* 統一池與籃的樣式 */
+        .pool, .zone {
             background: #fff;
             border: 2px solid #ccc;
             border-radius: 12px;
@@ -39,12 +52,17 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            min-height: 380px;
             align-content: flex-start;
+            flex: 1; /* 關鍵：平均分配高度 */
+            overflow-y: auto; /* 如果內容太多就出現捲軸 */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-sizing: border-box;
         }
 
-        .pool h3 { width: 100%; text-align: center; margin: 0 0 10px 0; font-size: 1rem; color: #444; }
+        .zone { border: 3px solid var(--primary); border-radius: 15px; }
+
+        .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 10px 0; font-size: 1.1rem; color: #444; }
+        .zone h3 { color: var(--primary); border-bottom: 1px solid #eee; }
 
         /* 卡片樣式 */
         .card {
@@ -57,14 +75,12 @@
             flex-direction: column;
         }
 
-        /* 圖片卡片：固定寬度，高度自適應 */
-        .image-card { width: 160px; height: auto; }
+        .image-card { width: 140px; height: auto; }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
-        /* 文字卡片：固定大小 */
         .text-card {
-            width: 160px;
-            height: 60px;
+            width: 140px;
+            height: 55px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -73,22 +89,13 @@
             background: #E8F9FF;
         }
 
-        /* 合併後的狀態 */
         .merged .text-card {
-            width: 100%; height: 50px; border: none; border-top: 2px solid var(--primary); border-radius: 0;
+            width: 100%; height: 45px; border: none; border-top: 2px solid var(--primary); border-radius: 0;
         }
 
-        /* 右側：分類籃 */
-        .zone-area { flex: 1; display: flex; flex-direction: column; gap: 15px; }
-        .zone {
-            background: white; border: 3px solid var(--primary);
-            border-radius: 15px; padding: 20px; min-height: 350px;
-            display: flex; flex-wrap: wrap; gap: 12px; align-content: flex-start;
-        }
-        .zone h3 { width: 100%; text-align: center; color: var(--primary); border-bottom: 1px solid #eee; margin: 0 0 10px 0; }
         .drag-over { background: #d1eaff !important; border-style: dashed !important; }
 
-        .reset-btn { margin-top: 20px; padding: 10px 20px; cursor: pointer; border-radius: 20px; border: 1px solid #aaa; }
+        .reset-btn { margin: 15px 0; padding: 10px 25px; cursor: pointer; border-radius: 20px; border: 1px solid #aaa; background: white; }
     </style>
 </head>
 <body>
@@ -125,10 +132,10 @@
 
         <div class="zone-area">
             <div class="zone" id="z_toothed" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>齒鯨 Toothed Whale</h3>
+                <h3>🐳 齒鯨 Toothed Whale</h3>
             </div>
             <div class="zone" id="z_baleen" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>鬚鯨 Baleen Whale</h3>
+                <h3>🐢 鬚鯨 Baleen Whale</h3>
             </div>
         </div>
     </div>
