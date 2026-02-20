@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海洋生物分類練習 (圖文版)</title>
+    <title>海洋生物配對分類遊戲</title>
     <style>
         :root {
-            --primary-blue: #0077be;
-            --bg-color: #f8fbff;
+            --primary: #0056b3;
+            --bg: #f4f7f9;
+            --accent: #ff9800;
         }
 
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,175 +22,185 @@
 
         .game-container {
             display: flex;
-            gap: 40px;
-            margin-top: 20px;
-            width: 100%;
+            gap: 30px;
             max-width: 1100px;
-            justify-content: center;
+            width: 100%;
         }
 
-        /* 待分類卡片區 */
-        #source-area {
-            width: 250px;
+        /* 左側：零件區 */
+        #pool {
+            flex: 0 0 220px;
             min-height: 500px;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: #fff;
             border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
-        /* 卡片樣式 */
+        /* 共通卡片樣式 */
         .card {
             background: white;
-            border: 2px solid var(--primary-blue);
+            border: 2px solid var(--primary);
             border-radius: 8px;
             cursor: grab;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        /* 圖片卡片（作為容器） */
+        .image-card {
+            width: 150px;
+            height: 150px;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* 確保圖片不超出 */
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            min-height: 60px;
-            background-color: #fff;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* 如果卡片裡面是圖片 */
-        .card img {
+        .image-card img {
             width: 100%;
-            height: auto;
-            display: block;
-            pointer-events: none; /* 防止圖片干擾拖拽 */
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
         }
 
-        /* 如果卡片裡面是文字 */
-        .card span {
-            padding: 10px;
-            font-weight: bold;
+        /* 文字卡片 */
+        .text-card {
+            padding: 8px;
             text-align: center;
+            font-weight: bold;
+            background: #e3f2fd;
         }
 
-        .card:active { cursor: grabbing; }
+        /* 合併後的樣式 */
+        .merged .text-card {
+            border: none;
+            width: 100%;
+            border-top: 1px solid #ddd;
+            border-radius: 0;
+            background: #fff;
+        }
 
-        /* 分類框區域 */
-        .drop-zones {
+        /* 分類籃 */
+        .zone-area {
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
         .zone {
-            width: 380px;
-            min-height: 220px;
-            background: #fff;
-            border: 3px solid var(--primary-blue);
+            background: white;
+            border: 3px solid var(--primary);
             border-radius: 15px;
             padding: 15px;
-            transition: all 0.2s;
+            min-height: 180px;
             display: flex;
-            flex-wrap: wrap; /* 讓掉進來的卡片可以橫向排列 */
+            flex-wrap: wrap;
+            gap: 15px;
             align-content: flex-start;
-            gap: 10px;
         }
 
         .zone h3 {
             width: 100%;
             margin: 0 0 10px 0;
+            color: var(--primary);
             text-align: center;
-            color: var(--primary-blue);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+            border-bottom: 2px solid #eee;
         }
 
-        .zone.drag-over {
-            background: #e1f5fe;
-            border-style: dashed;
+        .drag-over {
+            background: #e1f5fe !important;
+            border-style: dashed !important;
         }
 
-        button {
-            margin-top: 30px;
-            padding: 10px 25px;
-            background: #666;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        .hint { font-size: 0.9rem; color: #666; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>🐋 海洋生物圖文分類</h1>
-    <p>請將左側的名稱或照片拖入正確的框框中</p>
+    <h1>🐋 海洋生物配對分類挑戰</h1>
+    <p class="hint">步驟：1. 將「名字」拖到「圖片」上合併 | 2. 將「合併後的卡片」拖入分類籃</p>
 
     <div class="game-container">
-        <div id="source-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div id="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+            <h3>待配對池</h3>
             
-            <div class="card" draggable="true" id="c1"><span>中華白海豚</span></div>
-            
-            <div class="card" draggable="true" id="c2">
-                <img src="https://via.placeholder.com/150x100?text=Dolphin+Photo" alt="江豚照片">
+            <div class="card image-card" draggable="true" id="img_1">
+                <img src="https://via.placeholder.com/150/0077be/ffffff?text=Dolphin" alt="圖">
             </div>
 
-            <div class="card" draggable="true" id="c3"><span>綠蠵龜</span></div>
-
-            <div class="card" draggable="true" id="c4">
-                <img src="https://via.placeholder.com/150x100?text=Turtle+Photo" alt="海龜照片">
+            <div class="card image-card" draggable="true" id="img_2">
+                <img src="https://via.placeholder.com/150/2ecc71/ffffff?text=Turtle" alt="圖">
             </div>
 
+            <div class="card text-card" draggable="true" id="txt_1">中華白海豚</div>
+            <div class="card text-card" draggable="true" id="txt_2">綠蠵龜</div>
         </div>
 
-        <div class="drop-zones">
-            <div class="zone" id="z1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                <h3>🐳 鯨豚類</h3>
+        <div class="zone-area">
+            <div class="zone" id="zone_cetacean" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <h3>🐳 鯨豚類籃子</h3>
             </div>
-            <div class="zone" id="z2" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                <h3>🐢 海龜類</h3>
+            <div class="zone" id="zone_turtle" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="dragLeave(event)">
+                <h3>🐢 海龜類籃子</h3>
             </div>
         </div>
     </div>
 
-    <button onclick="location.reload()">全部重置</button>
+    <button style="margin-top:20px; padding:10px 20px;" onclick="location.reload()">重新開始</button>
 
     <script>
-        function allowDrop(e) {
-            e.preventDefault();
-            let target = e.target;
-            while (target && !target.classList.contains('zone') && target.id !== 'source-area') {
-                target = target.parentElement;
+        // 監聽所有卡片的開始拖拽
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('card')) {
+                e.dataTransfer.setData("text", e.target.id);
             }
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            let target = getValidTarget(e.target);
             if (target) target.classList.add('drag-over');
         }
 
-        function dragLeave(e) {
-            e.target.classList.remove('drag-over');
+        function handleDragLeave(e) {
+            let target = getValidTarget(e.target);
+            if (target) target.classList.remove('drag-over');
         }
 
-        function drop(e) {
+        function handleDrop(e) {
             e.preventDefault();
-            const data = e.dataTransfer.getData("text");
-            const draggedElement = document.getElementById(data);
-            
-            // 尋找最近的有效放置區域 (Zone 或 Source Area)
-            let target = e.target;
-            while (target && !target.classList.contains('zone') && target.id !== 'source-area') {
-                target = target.parentElement;
-            }
+            const draggedId = e.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(draggedId);
+            let dropTarget = getValidTarget(e.target);
 
-            if (target) {
-                target.classList.remove('drag-over');
-                target.appendChild(draggedElement);
+            if (!dropTarget || !draggedEl) return;
+            dropTarget.classList.remove('drag-over');
+
+            // 核心邏輯：如果把文字卡片放到圖片卡片上
+            if (draggedEl.classList.contains('text-card') && dropTarget.classList.contains('image-card')) {
+                dropTarget.appendChild(draggedEl);
+                dropTarget.classList.add('merged');
+                draggedEl.setAttribute('draggable', 'false'); // 合併後文字不能單獨再拖
+            } else {
+                // 一般的放置（放進籃子或放回池子）
+                dropTarget.appendChild(draggedEl);
             }
         }
 
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData("text", e.target.id);
-            });
-        });
+        function getValidTarget(el) {
+            while (el) {
+                // 允許放進：籃子、圖片卡片(為了合併)、或原始池子
+                if (el.classList.contains('zone') || 
+                    el.classList.contains('image-card') || 
+                    el.id === 'pool') return el;
+                el = el.parentElement;
+            }
+            return null;
+        }
     </script>
 </body>
 </html>
