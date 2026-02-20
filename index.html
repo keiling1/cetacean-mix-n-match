@@ -27,17 +27,25 @@
             gap: 25px; 
             width: 100%; 
             max-width: 1300px;
-            align-items: stretch; /* 關鍵：讓左右兩大區塊等高 */
+            align-items: stretch; /* 關鍵 1：強制左右欄高度同步 */
         }
-
-        /* 左側與右側區域 */
-        .source-container, .zone-area {
+        
+        /* 左側區塊：高度由內容撐開 */
+        .source-container {
             flex: 1; 
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-
+        
+        /* 右側區塊：強制垂直排列並填滿高度 */
+        .zone-area {
+            flex: 1; 
+            display: flex;
+            flex-direction: column; /* 關鍵 2：讓籃子上下排列 */
+            gap: 20px;
+        }
+        
         /* 統一池與籃的樣式 */
         .pool, .zone {
             background: #fff;
@@ -48,32 +56,20 @@
             flex-wrap: wrap;
             gap: 15px;
             align-content: flex-start;
-            flex: 1; /* 關鍵：讓內部的兩個方塊平均分配高度 */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             box-sizing: border-box;
         }
-
-        /* 移除捲軸，確保全部展示 */
-        .pool { overflow: visible; } 
-        .zone { border: 3px solid var(--primary); border-radius: 15px; overflow: visible; }
-
-        .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 15px 0; font-size: 1.1rem; color: #444; }
-        .zone h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-
-        /* 卡片樣式 */
-        .card {
-            background: white;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            cursor: grab;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.1s;
+        
+        /* 關鍵 3：讓左側兩個 pool 和右側兩個 zone 都自動平分高度 */
+        .pool, .zone {
+            flex: 1; 
         }
-
-        /* 調整圖片卡片寬度，確保 8 張圖排版整齊 */
-        .image-card { width: 150px; height: auto; background: #FFFFFF}
+        
+        /* 確保圖片不會被擠壓 */
+        .image-card { 
+            width: 150px; 
+            flex-shrink: 0; /* 防止卡片在空間不足時縮小 */
+        }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
         /* 文字卡片固定大小 */
