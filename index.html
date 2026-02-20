@@ -15,38 +15,32 @@
             background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
+            /* 讓整體頁面根據內容長度自然延伸 */
             min-height: 100vh;
         }
 
         h1 { margin: 10px 0; }
         p { margin-bottom: 15px; }
 
-        /* 主容器：使用 stretch 讓左右等高 */
+        /* 主容器：強制左右兩欄高度絕對同步 */
         .game-container {
             display: flex; 
             gap: 25px; 
             width: 100%; 
             max-width: 1300px;
-            align-items: stretch; /* 關鍵 1：強制左右欄高度同步 */
+            align-items: stretch; /* 關鍵：強制左右欄等高 */
         }
-        
-        /* 左側區塊：高度由內容撐開 */
-        .source-container {
+
+        /* 左側與右側大容器 */
+        .source-container, .zone-area {
             flex: 1; 
             display: flex;
             flex-direction: column;
             gap: 20px;
+            min-width: 0; /* 防止內容撐開 */
         }
-        
-        /* 右側區塊：強制垂直排列並填滿高度 */
-        .zone-area {
-            flex: 1; 
-            display: flex;
-            flex-direction: column; /* 關鍵 2：讓籃子上下排列 */
-            gap: 20px;
-        }
-        
-        /* 統一池與籃的樣式 */
+
+        /* 關鍵：讓所有的 pool 與 zone 都在各自的欄位中平分高度 */
         .pool, .zone {
             background: #fff;
             border: 2px solid #ccc;
@@ -56,23 +50,39 @@
             flex-wrap: wrap;
             gap: 15px;
             align-content: flex-start;
+            flex: 1 1 0; /* 關鍵：強制平分高度，不讓內容撐大 */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             box-sizing: border-box;
+            overflow: hidden; /* 確保內容不會溢出 */
         }
-        
-        /* 關鍵 3：讓左側兩個 pool 和右側兩個 zone 都自動平分高度 */
-        .pool, .zone {
-            flex: 1; 
+
+        /* 針對籃子的特別樣式 */
+        .zone {
+            border: 3px solid var(--primary);
+            border-radius: 15px;
         }
-        
-        /* 確保圖片不會被擠壓 */
-        .image-card { 
-            width: 150px; 
-            flex-shrink: 0; /* 防止卡片在空間不足時縮小 */
+
+        .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 15px 0; font-size: 1.1rem; color: #444; }
+        .zone h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+        /* 卡片樣式 */
+        .card {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            cursor: grab;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.1s;
+            flex-shrink: 0;
         }
+
+        /* 圖片卡片：固定寬度 */
+        .image-card { width: 150px; }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
-        /* 文字卡片固定大小 */
+        /* 文字卡片：固定大小 */
         .text-card {
             width: 150px;
             height: 60px;
@@ -82,6 +92,7 @@
             text-align: center;
             font-weight: bold;
             background: #E8F9FF;
+            box-sizing: border-box;
         }
 
         /* 合併後的狀態 */
@@ -147,6 +158,7 @@
 
         function shufflePool(id) {
             const pool = document.getElementById(id);
+            if (!pool) return;
             const cards = Array.from(pool.querySelectorAll('.card'));
             cards.sort(() => Math.random() - 0.5);
             cards.forEach(card => pool.appendChild(card));
