@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚對對碰 - 完美對齊修復版</title>
+    <title>鯨豚對對碰</title>
     <style>
         :root {
             --primary: #0056b3;
             --bg: #eef2f7;
-            --pool-light: #dcf0ff;
+            --pool-light: #f0f7ff;
         }
 
         body {
@@ -20,14 +20,14 @@
 
         h1 { margin: 10px 0; color: var(--primary); }
 
-        /* 主容器：確保左右兩大欄絕對等高 */
+        /* 主容器：固定左右寬度並強制等高 */
         .game-container {
             display: grid;
-            grid-template-columns: 1.2fr 1fr; /* 左寬右窄 */
+            /* 關鍵：左側固定 550px，右側固定 650px */
+            grid-template-columns: 550px 750px; 
             gap: 25px;
-            width: 95%;
-            max-width: 1400px;
-            align-items: stretch; /* 關鍵：強制等高 */
+            width: fit-content;
+            align-items: stretch; 
         }
 
         .source-container, .zone-area {
@@ -46,10 +46,10 @@
             flex-wrap: wrap;
             gap: 15px;
             align-content: flex-start;
-            flex: 1; /* 平分高度 */
+            flex: 1; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             box-sizing: border-box;
-            background-color: white; /* 確保背景是白色 */
+            background-color: white; 
         }
 
         #pool-images, #pool-texts { background-color: var(--pool-light); border-style: dashed; }
@@ -59,7 +59,7 @@
 
         /* 卡片樣式 */
         .card {
-            background: white !important; /* 強制白色底色 */
+            background: white !important; 
             border: 2px solid var(--primary);
             border-radius: 8px;
             cursor: grab;
@@ -69,11 +69,11 @@
             flex-shrink: 0;
         }
 
-        /* 左側圖片區：一行3張 (160px) */
-        #pool-images .image-card, #pool-texts .text-card { width: 160px; }
+        /* 左側 (550px)：一行 3 張 (155px x 3 + 間距 = 約 500px) */
+        .source-container .card { width: 155px; }
         
-        /* 右側籃子區：一行4張 (縮小為 130px) */
-        .zone .card { width: 130px; }
+        /* 右側 (650px)：一行 4 張 (140px x 4 + 間距 = 約 600px) */
+        .zone-area .card { width: 140px; }
 
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
@@ -86,14 +86,14 @@
             font-weight: bold;
         }
 
-        /* 合併後的狀態 */
+        /* 合併後的文字方塊 */
         .merged .text-card {
             width: 100%; height: 45px; border: none; border-top: 1px solid #ddd; border-radius: 0; font-size: 0.9rem;
         }
 
-        /* 拖拽效果修復：移除藍色，僅保留虛線框 */
+        /* 移除變色效果 */
         .drag-over { 
-            background-color: rgba(255, 255, 255, 0.7) !important; 
+            background-color: white !important; 
             border: 2px dashed var(--primary) !important; 
         }
 
@@ -106,25 +106,23 @@
             font-weight: bold;
             border: 2px solid var(--primary);
             color: var(--primary);
-            transition: 0.3s;
         }
-        .reset-btn:hover { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
-    <h1>🐬 鯨豚對對碰</h1>
-    <p>步驟：1. 將名字拉到圖片上合併 | 2. 將完成的圖鑑拉進正確的籃子</p>
+    <h1>🐋 鯨豚對對碰</h1>
+    <p>步驟：1. 合併名字與圖片 | 2. 放入正確的分類籃</p>
 
     <div class="game-container">
         <div class="source-container">
             <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>🖼️ 鯨豚圖片區 (一行3張)</h3>
+                <h3>🖼️ 鯨豚圖片區</h3>
                 <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
                 <div class="card image-card" draggable="true" id="img_B"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk"></div>
                 <div class="card image-card" draggable="true" id="img_C"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2023-03/640x427-Whale-Bowhead-markedDW.png?itok=qnTC9guS"></div>
                 <div class="card image-card" draggable="true" id="img_D"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-gray-whale.png?itok=fvtmGaN4"></div>
-                <div class="card image-card" draggable="true" id="img_E"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
+                <div class="card image-card" draggable="true" id="img_E"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/2021-04/640x427-Dolphin_Indus_River_150_NB_W.jpg?itok=49rQuj_E"></div>
                 <div class="card image-card" draggable="true" id="img_F"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-rissos-dolphin.png?itok=aFmnZh2F"></div>
                 <div class="card image-card" draggable="true" id="img_G"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-blainvilles-beaked-whale.png?itok=GeEV9fN3"></div>
                 <div class="card image-card" draggable="true" id="img_H"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-minke-whale.png?itok=BF2mFkIv"></div>
@@ -136,7 +134,7 @@
                 <div class="card text-card" draggable="true" id="txt_B">熱帶斑海豚</div>
                 <div class="card text-card" draggable="true" id="txt_C">弓頭鯨</div>
                 <div class="card text-card" draggable="true" id="txt_D">灰鯨</div>
-                <div class="card text-card" draggable="true" id="txt_E">一角鯨</div>
+                <div class="card text-card" draggable="true" id="txt_E">恆河豚</div>
                 <div class="card text-card" draggable="true" id="txt_F">瑞氏海豚</div>
                 <div class="card text-card" draggable="true" id="txt_G">柏氏中喙鯨</div>
                 <div class="card text-card" draggable="true" id="txt_H">小鬚鯨</div>
@@ -145,10 +143,10 @@
 
         <div class="zone-area">
             <div class="zone" id="z_toothed" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>🐳 齒鯨 Toothed Whale (一行4張)</h3>
+                <h3>齒鯨 Toothed Whale</h3>
             </div>
             <div class="zone" id="z_baleen" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>🐢 鬚鯨 Baleen Whale (一行4張)</h3>
+                <h3>鬚鯨 Baleen Whale</h3>
             </div>
         </div>
     </div>
@@ -171,39 +169,20 @@
         document.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('card')) {
                 e.dataTransfer.setData("text", e.target.id);
-                // 增加透明度回饋
-                setTimeout(() => e.target.style.opacity = "0.5", 0);
             }
         });
 
-        document.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('card')) {
-                e.target.style.opacity = "1";
-            }
-        });
-
-        function handleDragOver(e) { 
-            e.preventDefault(); 
-            let t = getValidTarget(e.target); 
-            if (t) t.classList.add('drag-over'); 
-        }
-
-        function handleDragLeave(e) { 
-            let t = getValidTarget(e.target); 
-            if (t) t.classList.remove('drag-over'); 
-        }
+        function handleDragOver(e) { e.preventDefault(); let t = getValidTarget(e.target); if (t) t.classList.add('drag-over'); }
+        function handleDragLeave(e) { let t = getValidTarget(e.target); if (t) t.classList.remove('drag-over'); }
 
         function handleDrop(e) {
             e.preventDefault();
             const draggedId = e.dataTransfer.getData("text");
             const draggedEl = document.getElementById(draggedId);
             let dropTarget = getValidTarget(e.target);
-
             if (dropTarget) dropTarget.classList.remove('drag-over');
-
             if (!dropTarget || !draggedEl) return;
 
-            // 配對邏輯
             if (draggedEl.classList.contains('text-card') && dropTarget.classList.contains('image-card')) {
                 if (dropTarget.querySelector('.text-card')) return;
                 dropTarget.appendChild(draggedEl);
