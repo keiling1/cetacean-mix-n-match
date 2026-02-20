@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海洋生物自由分類練習</title>
+    <title>海洋生物分類練習 (圖文版)</title>
     <style>
         :root {
             --primary-blue: #0077be;
@@ -24,31 +24,52 @@
             gap: 40px;
             margin-top: 20px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             justify-content: center;
         }
 
         /* 待分類卡片區 */
         #source-area {
-            width: 220px;
-            min-height: 450px;
+            width: 250px;
+            min-height: 500px;
             background: #ffffff;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
+        /* 卡片樣式 */
         .card {
             background: white;
             border: 2px solid var(--primary-blue);
-            padding: 12px;
-            margin-bottom: 12px;
             border-radius: 8px;
             cursor: grab;
-            text-align: center;
-            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* 確保圖片不超出 */
             box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            min-height: 60px;
+            background-color: #fff;
+        }
+
+        /* 如果卡片裡面是圖片 */
+        .card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none; /* 防止圖片干擾拖拽 */
+        }
+
+        /* 如果卡片裡面是文字 */
+        .card span {
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
         }
 
         .card:active { cursor: grabbing; }
@@ -61,16 +82,21 @@
         }
 
         .zone {
-            width: 350px;
-            min-height: 180px;
+            width: 380px;
+            min-height: 220px;
             background: #fff;
             border: 3px solid var(--primary-blue);
             border-radius: 15px;
             padding: 15px;
             transition: all 0.2s;
+            display: flex;
+            flex-wrap: wrap; /* 讓掉進來的卡片可以橫向排列 */
+            align-content: flex-start;
+            gap: 10px;
         }
 
         .zone h3 {
+            width: 100%;
             margin: 0 0 10px 0;
             text-align: center;
             color: var(--primary-blue);
@@ -78,11 +104,9 @@
             padding-bottom: 5px;
         }
 
-        /* 拖曳懸停效果 */
         .zone.drag-over {
             background: #e1f5fe;
             border-style: dashed;
-            transform: scale(1.02);
         }
 
         button {
@@ -98,17 +122,24 @@
 </head>
 <body>
 
-    <h1>🐋 海洋生物分類練習</h1>
-    <p>請將卡片拖拉至你認為正確的框框中</p>
+    <h1>🐋 海洋生物圖文分類</h1>
+    <p>請將左側的名稱或照片拖入正確的框框中</p>
 
     <div class="game-container">
         <div id="source-area" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <div class="card" draggable="true" id="c1">中華白海豚</div>
-            <div class="card" draggable="true" id="c2">印太江豚</div>
-            <div class="card" draggable="true" id="c3">綠蠵龜</div>
-            <div class="card" draggable="true" id="c4">玳瑁</div>
-            <div class="card" draggable="true" id="c5">大翅鯨</div>
-            <div class="card" draggable="true" id="c6">赤蠵龜</div>
+            
+            <div class="card" draggable="true" id="c1"><span>中華白海豚</span></div>
+            
+            <div class="card" draggable="true" id="c2">
+                <img src="https://via.placeholder.com/150x100?text=Dolphin+Photo" alt="江豚照片">
+            </div>
+
+            <div class="card" draggable="true" id="c3"><span>綠蠵龜</span></div>
+
+            <div class="card" draggable="true" id="c4">
+                <img src="https://via.placeholder.com/150x100?text=Turtle+Photo" alt="海龜照片">
+            </div>
+
         </div>
 
         <div class="drop-zones">
@@ -124,36 +155,36 @@
     <button onclick="location.reload()">全部重置</button>
 
     <script>
-        // 允許放置
         function allowDrop(e) {
             e.preventDefault();
-            if (e.target.classList.contains('zone')) {
-                e.target.classList.add('drag-over');
+            let target = e.target;
+            while (target && !target.classList.contains('zone') && target.id !== 'source-area') {
+                target = target.parentElement;
             }
+            if (target) target.classList.add('drag-over');
         }
 
-        // 離開區域時移除視覺效果
         function dragLeave(e) {
             e.target.classList.remove('drag-over');
         }
 
-        // 核心邏輯：直接把元素塞進去，不做對錯判斷
         function drop(e) {
             e.preventDefault();
             const data = e.dataTransfer.getData("text");
             const draggedElement = document.getElementById(data);
             
-            // 移除懸停樣式
-            if (e.target.classList.contains('zone')) {
-                e.target.classList.remove('drag-over');
-                e.target.appendChild(draggedElement);
-            } else if (e.target.id === "source-area") {
-                // 也允許拉回左側區域
-                e.target.appendChild(draggedElement);
+            // 尋找最近的有效放置區域 (Zone 或 Source Area)
+            let target = e.target;
+            while (target && !target.classList.contains('zone') && target.id !== 'source-area') {
+                target = target.parentElement;
+            }
+
+            if (target) {
+                target.classList.remove('drag-over');
+                target.appendChild(draggedElement);
             }
         }
 
-        // 初始化所有卡片的拖拽事件
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData("text", e.target.id);
