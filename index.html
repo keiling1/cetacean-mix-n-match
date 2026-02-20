@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鯨豚對對碰 - 等高版</title>
+    <title>鯨豚對對碰</title>
     <style>
         :root {
             --primary: #0056b3;
             --bg: #eef2f7;
-            --img-pool: #fffafa;
-            --txt-pool: #f0f8ff;
         }
 
         body {
@@ -17,30 +15,27 @@
             background-color: var(--bg);
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
-            height: 100vh; /* 讓身體撐滿螢幕高度 */
-            box-sizing: border-box;
+            min-height: 100vh;
         }
 
         h1 { margin: 10px 0; }
         p { margin-bottom: 15px; }
 
-        /* 主容器：確保撐滿剩餘空間 */
+        /* 主容器：使用 stretch 讓左右等高 */
         .game-container {
             display: flex; 
-            gap: 20px; 
+            gap: 25px; 
             width: 100%; 
             max-width: 1300px;
-            flex: 1; /* 填滿 body 剩餘高度 */
-            min-height: 0; /* 防止內容撐開高度 */
+            align-items: stretch; /* 關鍵：讓左右兩大區塊等高 */
         }
 
-        /* 左側與右側區域都要維持 100% 高度 */
+        /* 左側與右側區域 */
         .source-container, .zone-area {
             flex: 1; 
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            height: 100%; /* 關鍵：強制等高 */
+            gap: 20px;
         }
 
         /* 統一池與籃的樣式 */
@@ -48,21 +43,22 @@
             background: #fff;
             border: 2px solid #ccc;
             border-radius: 12px;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
             align-content: flex-start;
-            flex: 1; /* 關鍵：平均分配高度 */
-            overflow-y: auto; /* 如果內容太多就出現捲軸 */
+            flex: 1; /* 關鍵：讓內部的兩個方塊平均分配高度 */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             box-sizing: border-box;
         }
 
-        .zone { border: 3px solid var(--primary); border-radius: 15px; }
+        /* 移除捲軸，確保全部展示 */
+        .pool { overflow: visible; } 
+        .zone { border: 3px solid var(--primary); border-radius: 15px; overflow: visible; }
 
-        .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 10px 0; font-size: 1.1rem; color: #444; }
-        .zone h3 { color: var(--primary); border-bottom: 1px solid #eee; }
+        .pool h3, .zone h3 { width: 100%; text-align: center; margin: 0 0 15px 0; font-size: 1.1rem; color: #444; }
+        .zone h3 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
         /* 卡片樣式 */
         .card {
@@ -73,14 +69,17 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: transform 0.1s;
         }
 
-        .image-card { width: 140px; height: auto; }
+        /* 調整圖片卡片寬度，確保 8 張圖排版整齊 */
+        .image-card { width: 150px; height: auto; }
         .image-card img { width: 100%; height: auto; display: block; pointer-events: none; }
 
+        /* 文字卡片固定大小 */
         .text-card {
-            width: 140px;
-            height: 55px;
+            width: 150px;
+            height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -89,24 +88,26 @@
             background: #E8F9FF;
         }
 
+        /* 合併後的狀態 */
         .merged .text-card {
-            width: 100%; height: 45px; border: none; border-top: 2px solid var(--primary); border-radius: 0;
+            width: 100%; height: 50px; border: none; border-top: 2px solid var(--primary); border-radius: 0; background: #fff;
         }
 
         .drag-over { background: #d1eaff !important; border-style: dashed !important; }
 
-        .reset-btn { margin: 15px 0; padding: 10px 25px; cursor: pointer; border-radius: 20px; border: 1px solid #aaa; background: white; }
+        .reset-btn { margin: 20px 0; padding: 12px 30px; cursor: pointer; border-radius: 25px; border: 1px solid #aaa; background: white; font-weight: bold; }
+        .reset-btn:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
 
     <h1>🐋 鯨豚對對碰</h1>
-    <p>將名字與圖片合併，然後整組放入籃中</p>
+    <p>將名字與圖片合併，然後整組放入正確的分支籃子中</p>
 
     <div class="game-container">
         <div class="source-container">
             <div id="pool-images" class="pool" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-                <h3>🖼️ 鯨豚圖片區</h3>
+                <h3>🖼️ 鯨豚圖片區 (請先在此配對)</h3>
                 <div class="card image-card" draggable="true" id="img_A"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-narwhal.jpg?itok=3GqtVhR0"></div>
                 <div class="card image-card" draggable="true" id="img_B"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-pantropical-spotted-dolphin.png?itok=TUQFbrlk"></div>
                 <div class="card image-card" draggable="true" id="img_C"><img src="https://www.fisheries.noaa.gov/s3//styles/original/s3/dam-migration/640x427-rissos-dolphin.png?itok=aFmnZh2F"></div>
@@ -132,15 +133,15 @@
 
         <div class="zone-area">
             <div class="zone" id="z_toothed" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>🐳 齒鯨 Toothed Whale</h3>
+                <h3>齒鯨 Toothed Whale</h3>
             </div>
             <div class="zone" id="z_baleen" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <h3>🐢 鬚鯨 Baleen Whale</h3>
+                <h3>鬚鯨 Baleen Whale</h3>
             </div>
         </div>
     </div>
 
-    <button class="reset-btn" onclick="location.reload()">重新開始</button>
+    <button class="reset-btn" onclick="location.reload()">重新開始並打亂順序</button>
 
     <script>
         window.onload = function() {
