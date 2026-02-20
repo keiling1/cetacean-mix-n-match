@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋生物分類配對遊戲</title>
+    <style>
+        :root {
+            --primary-blue: #0077be;
+            --bg-color: #f0f8ff;
+            --correct-green: #2ecc71;
+            --wrong-red: #e74c3c;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 { color: var(--primary-blue); }
+
+        .game-container {
+            display: flex;
+            gap: 50px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* 待分類卡片區 */
+        #source-area {
+            width: 200px;
+            min-height: 400px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px dashed #ccc;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid var(--primary-blue);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: grab;
+            text-align: center;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .card:active { cursor: grabbing; }
+
+        /* 分類目標區 */
+        .drop-zones {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .zone {
+            width: 300px;
+            min-height: 150px;
+            background: #eef;
+            border: 3px solid var(--primary-blue);
+            border-radius: 15px;
+            padding: 10px;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .zone h3 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+        }
+
+        .zone.drag-over {
+            background: #d1e7ff;
+            border-style: dashed;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            height: 30px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🐋 海洋生物分類挑戰</h1>
+    <p>請將左側的生物拖拉至正確的分類框中！</p>
+
+    <div class="game-container">
+        <div id="source-area">
+            <div class="card" draggable="true" id="dolphin1" data-type="cetacean">中華白海豚</div>
+            <div class="card" draggable="true" id="dolphin2" data-type="cetacean">印太江豚</div>
+            <div class="card" draggable="true" id="turtle1" data-type="turtle">綠蠵龜</div>
+            <div class="card" draggable="true" id="turtle2" data-type="turtle">玳瑁</div>
+            <div class="card" draggable="true" id="cetacean1" data-type="cetacean">大翅鯨</div>
+        </div>
+
+        <div class="drop-zones">
+            <div class="zone" id="cetacean" data-accept="cetacean">
+                <h3>🐳 鯨豚類</h3>
+            </div>
+            <div class="zone" id="turtle" data-accept="turtle">
+                <h3>🐢 海龜類</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="message"></div>
+    <button onclick="location.reload()">重新開始</button>
+
+    <script>
+        const cards = document.querySelectorAll('.card');
+        const zones = document.querySelectorAll('.zone');
+        const message = document.getElementById('message');
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+        });
+
+        zones.forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('dragleave', dragLeave);
+            zone.addEventListener('drop', dropEvent);
+        });
+
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function dragLeave() {
+            this.classList.remove('drag-over');
+        }
+
+        function dropEvent(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const cardId = e.dataTransfer.getData('text/plain');
+            const card = document.getElementById(cardId);
+            const cardType = card.getAttribute('data-type');
+            const zoneType = this.getAttribute('data-accept');
+
+            if (cardType === zoneType) {
+                this.appendChild(card);
+                card.setAttribute('draggable', 'false');
+                card.style.cursor = 'default';
+                card.style.background = '#e8f5e9';
+                showMessage('正確！幹得好！', '#2ecc71');
+                checkWin();
+            } else {
+                showMessage('這不屬於這一類喔，再試試看！', '#e74c3c');
+            }
+        }
+
+        function showMessage(txt, color) {
+            message.textContent = txt;
+            message.style.color = color;
+            setTimeout(() => { message.textContent = ''; }, 2000);
+        }
+
+        function checkWin() {
+            const remaining = document.querySelectorAll('#source-area .card');
+            if (remaining.length === 0) {
+                message.textContent = '🎉 恭喜！你完成了所有分類！';
+                message.style.color = '#f39c12';
+            }
+        }
+    </script>
+</body>
+</html>
