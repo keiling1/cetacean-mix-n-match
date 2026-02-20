@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海洋生物分類配對遊戲</title>
+    <title>海洋生物自由分類練習</title>
     <style>
         :root {
             --primary-blue: #0077be;
-            --bg-color: #f0f8ff;
-            --correct-green: #2ecc71;
-            --wrong-red: #e74c3c;
+            --bg-color: #f8fbff;
         }
 
         body {
@@ -21,42 +19,41 @@
             padding: 20px;
         }
 
-        h1 { color: var(--primary-blue); }
-
         .game-container {
             display: flex;
-            gap: 50px;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 1000px;
             justify-content: center;
         }
 
         /* 待分類卡片區 */
         #source-area {
-            width: 200px;
-            min-height: 400px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border: 2px dashed #ccc;
+            width: 220px;
+            min-height: 450px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 2px solid #ddd;
         }
 
         .card {
             background: white;
             border: 2px solid var(--primary-blue);
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
             border-radius: 8px;
             cursor: grab;
             text-align: center;
             font-weight: bold;
-            transition: transform 0.2s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
 
         .card:active { cursor: grabbing; }
 
-        /* 分類目標區 */
+        /* 分類框區域 */
         .drop-zones {
             display: flex;
             flex-direction: column;
@@ -64,38 +61,34 @@
         }
 
         .zone {
-            width: 300px;
-            min-height: 150px;
-            background: #eef;
+            width: 350px;
+            min-height: 180px;
+            background: #fff;
             border: 3px solid var(--primary-blue);
             border-radius: 15px;
-            padding: 10px;
-            position: relative;
-            transition: background 0.3s;
+            padding: 15px;
+            transition: all 0.2s;
         }
 
         .zone h3 {
-            margin-top: 0;
+            margin: 0 0 10px 0;
             text-align: center;
-            color: #333;
+            color: var(--primary-blue);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
         }
 
+        /* 拖曳懸停效果 */
         .zone.drag-over {
-            background: #d1e7ff;
+            background: #e1f5fe;
             border-style: dashed;
-        }
-
-        #message {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            height: 30px;
+            transform: scale(1.02);
         }
 
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: var(--primary-blue);
+            margin-top: 30px;
+            padding: 10px 25px;
+            background: #666;
             color: white;
             border: none;
             border-radius: 5px;
@@ -105,93 +98,67 @@
 </head>
 <body>
 
-    <h1>🐋 海洋生物分類挑戰</h1>
-    <p>請將左側的生物拖拉至正確的分類框中！</p>
+    <h1>🐋 海洋生物分類練習</h1>
+    <p>請將卡片拖拉至你認為正確的框框中</p>
 
     <div class="game-container">
-        <div id="source-area">
-            <div class="card" draggable="true" id="dolphin1" data-type="cetacean">中華白海豚</div>
-            <div class="card" draggable="true" id="dolphin2" data-type="cetacean">印太江豚</div>
-            <div class="card" draggable="true" id="turtle1" data-type="turtle">綠蠵龜</div>
-            <div class="card" draggable="true" id="turtle2" data-type="turtle">玳瑁</div>
-            <div class="card" draggable="true" id="cetacean1" data-type="cetacean">大翅鯨</div>
+        <div id="source-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="card" draggable="true" id="c1">中華白海豚</div>
+            <div class="card" draggable="true" id="c2">印太江豚</div>
+            <div class="card" draggable="true" id="c3">綠蠵龜</div>
+            <div class="card" draggable="true" id="c4">玳瑁</div>
+            <div class="card" draggable="true" id="c5">大翅鯨</div>
+            <div class="card" draggable="true" id="c6">赤蠵龜</div>
         </div>
 
         <div class="drop-zones">
-            <div class="zone" id="cetacean" data-accept="cetacean">
+            <div class="zone" id="z1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <h3>🐳 鯨豚類</h3>
             </div>
-            <div class="zone" id="turtle" data-accept="turtle">
+            <div class="zone" id="z2" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <h3>🐢 海龜類</h3>
             </div>
         </div>
     </div>
 
-    <div id="message"></div>
-    <button onclick="location.reload()">重新開始</button>
+    <button onclick="location.reload()">全部重置</button>
 
     <script>
-        const cards = document.querySelectorAll('.card');
-        const zones = document.querySelectorAll('.zone');
-        const message = document.getElementById('message');
-
-        cards.forEach(card => {
-            card.addEventListener('dragstart', dragStart);
-        });
-
-        zones.forEach(zone => {
-            zone.addEventListener('dragover', dragOver);
-            zone.addEventListener('dragleave', dragLeave);
-            zone.addEventListener('drop', dropEvent);
-        });
-
-        function dragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.id);
-        }
-
-        function dragOver(e) {
+        // 允許放置
+        function allowDrop(e) {
             e.preventDefault();
-            this.classList.add('drag-over');
+            if (e.target.classList.contains('zone')) {
+                e.target.classList.add('drag-over');
+            }
         }
 
-        function dragLeave() {
-            this.classList.remove('drag-over');
+        // 離開區域時移除視覺效果
+        function dragLeave(e) {
+            e.target.classList.remove('drag-over');
         }
 
-        function dropEvent(e) {
+        // 核心邏輯：直接把元素塞進去，不做對錯判斷
+        function drop(e) {
             e.preventDefault();
-            this.classList.remove('drag-over');
+            const data = e.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
             
-            const cardId = e.dataTransfer.getData('text/plain');
-            const card = document.getElementById(cardId);
-            const cardType = card.getAttribute('data-type');
-            const zoneType = this.getAttribute('data-accept');
-
-            if (cardType === zoneType) {
-                this.appendChild(card);
-                card.setAttribute('draggable', 'false');
-                card.style.cursor = 'default';
-                card.style.background = '#e8f5e9';
-                showMessage('正確！幹得好！', '#2ecc71');
-                checkWin();
-            } else {
-                showMessage('這不屬於這一類喔，再試試看！', '#e74c3c');
+            // 移除懸停樣式
+            if (e.target.classList.contains('zone')) {
+                e.target.classList.remove('drag-over');
+                e.target.appendChild(draggedElement);
+            } else if (e.target.id === "source-area") {
+                // 也允許拉回左側區域
+                e.target.appendChild(draggedElement);
             }
         }
 
-        function showMessage(txt, color) {
-            message.textContent = txt;
-            message.style.color = color;
-            setTimeout(() => { message.textContent = ''; }, 2000);
-        }
-
-        function checkWin() {
-            const remaining = document.querySelectorAll('#source-area .card');
-            if (remaining.length === 0) {
-                message.textContent = '🎉 恭喜！你完成了所有分類！';
-                message.style.color = '#f39c12';
-            }
-        }
+        // 初始化所有卡片的拖拽事件
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData("text", e.target.id);
+            });
+        });
     </script>
 </body>
 </html>
